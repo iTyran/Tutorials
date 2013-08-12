@@ -1,4 +1,4 @@
-This is the entire code of the JS Binding tutorial
+This is the project code of the JS Binding 
 
 
 License:  WTFPL
