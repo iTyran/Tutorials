@@ -89,11 +89,17 @@ var ActionSprite = cc.Node.extend({
 
 			var p = cc.p(-y, x);
 			if (y < 0){
+				if (!this._flipX)
+					this._sprite.runAction(cc.ScaleTo.create(0, this._imageflipX ? 1:-1, 1));
+				
 				this._flipX = true;
-				this._sprite.setFlipX(!this._imageflipX);
+				// this._sprite.setFlippedX(!this._imageflipX);
+
 			}
 			if (y > 0){
-				this._sprite.setFlipX(this._imageflipX);
+				if (this._flipX)
+					this._sprite.runAction(cc.ScaleTo.create(0, this._imageflipX ? -1:1, 1));					
+				// this._sprite.setFlippedX(this._imageflipX);
 				this._flipX = false;
 			}
 			
@@ -135,6 +141,7 @@ var ActionSprite = cc.Node.extend({
 	},
 	setZLocatoin:function(zl){
 		this._zLocation = zl;
+		// test
 		// var sprite = cc.Sprite.create(s_HeroState2);
 		// sprite.setPosition(cc.p(0, zl));
 		// this.addChild(sprite);
@@ -168,11 +175,11 @@ var ActionSprite = cc.Node.extend({
 	setAttackRect:function(){		// 设置打击范围
 		// cc.log("set attack rect ...");
 		
-		// var point = this.getPosition();
-		// var attackWidth = 100;
-		// 
-		// var newPoint = this._flipX ? cc.pSub(point, cc.p(100, 0)) : point;
-		// this._attackRect = cc.rect(point.x - 100 * 2, point.y, 100, 5);
+		var point = this.getPosition();
+		var attackWidth = 100;
+		
+		var newPoint = this._flipX ? cc.pSub(point, cc.p(100, 0)) : point;
+		this._attackRect = cc.rect(point.x - 100 * 2, point.y, 100, 5);
 		
 		// var tagLayer = 10001;
 		// var layer = cc.LayerColor.create(cc.c4b(0, 200, 200, 64), 100, 5);
@@ -312,15 +319,24 @@ Hero.create = function(){
 
 
 var Robot = ActionSprite.extend({
+	_armture:null,
+	
 	init:function(){
 		var bRet = false;
 		if (this._super()){
+
+			cc.ArmatureDataManager.getInstance().addArmatureFileInfo(
+				s_Robot_png,
+				s_Robot_plist,
+				s_Robot_json);
 			
-			this.setSprite(s_RobotAttack1, cc.p(500, 300));
-			this.setZLocatoin(-80);
-			this.initAction();
+			this._armature = cc.Armature.create("NewProject");
+			this.setSprite(this._armature, cc.p(500, 300));
+			this.setZLocatoin(-90);
+			this.hStand();
+
 			this.runWithDegrees(180);
-			cc.log("robot init");
+
 			this.setRoleType(AC.ROLE_ROBOT);
 			this._imageflipX = true;
 			bRet = true;
@@ -328,72 +344,56 @@ var Robot = ActionSprite.extend({
 		}		
 		return bRet;
 	},
-	initAction:function(){
-		// action stand
-		var as = cc.Animation.create();
-		for (var si = 1; si < 4; si++){
-			var asFrame = "res/Robot" + si + ".png";
-			as.addSpriteFrameWithFile(asFrame);
-		}
-		as.setDelayPerUnit(0.45);
-		as.setRestoreOriginalFrame(true);
-		this._actionStand = cc.RepeatForever.create(cc.Animate.create(as));
-
-		// action running
-		var ar = cc.Animation.create();
-		for (var ri = 1; ri < 7; ri++){
-			riFrame = "res/RobotRun" + ri + ".png";
-			ar.addSpriteFrameWithFile(riFrame);
-		}
-		ar.setDelayPerUnit(0.15);
-		ar.setRestoreOriginalFrame(true);
-		this._actionRunning = cc.RepeatForever.create(cc.Animate.create(ar));
-
-		// attack
-		var aa = cc.Animation.create();
-		for (var ai = 1; ai < 6; ai ++){
-			aiFrame = "res/RobotAttack" + ai + ".png";
-			aa.addSpriteFrameWithFile(aiFrame);
-		}
-		aa.setDelayPerUnit(0.2);
-		this._actionAttack = cc.Animate.create(aa);
-		
-		cc.log("robot init action");
-	},
+	setSprite:function(armature, pos){
+		this._sprite = armature;
+		this.addChild(this._sprite);
+		this.setPosition(pos);		
+	},	
 	hAttack:function(at){
-		var aa = this._actionAttack;
 		this._attackRangt = 150;					
-		if (aa){
-			this._sprite.stopAllActions();
-			var action = cc.Sequence.create(
-				aa,
-				cc.CallFunc.create(this.callBackEndAttack, this));
-			this._sprite.runAction(action);
-			this._state = AC.STATE_HERO_ATTACK;
-			this.postAttack();
-		}
+		this._sprite.stopAllActions();
+		this._sprite.getAnimation().play("attack");
+		this._sprite.getAnimation().setMovementEventCallFunc(this.callBackEndAttack,this);
+		this._state = AC.STATE_HERO_ATTACK;
+		this.postAttack();
+	},
+	hStand:function(){
+		this._sprite.getAnimation().play("stand");
+		this._state = AC.STATE_HERO_STAND;
+	},
+	hRunning:function(){
+		this._sprite.getAnimation().play("run");
+		this._state = AC.STATE_HERO_RUNNING;		
 	},
 	attack:function(button){
 		this.hAttack(button);
 	},
-	callBackEndAttack:function(){
-		if (this._isRun){
-			this.hRunning();
-		}else{
-			this.hStand();
+	callBackEndAttack:function(armature, movementType, movementID){
+		if (movementType == CC_MovementEventType_LOOP_COMPLETE) {
+			if (this._isRun){
+				this.hRunning();
+			}else{
+				this.hStand();
+			}
 		}
 	},
 	_timestamp: (new Date()).valueOf(),
+	_attackIndex: 0,
+	_moveIndex: 0,
 	ai:function(){
 		var newTs = (new Date()).valueOf();
 		var value = newTs - this._timestamp;
-		// cc.log("ai ai ..." + value);
-		if (value % 3000 < 300 && !this.isAttack()){
+
+		if (this._moveIndex < value / 3000){
+			this._moveIndex += 1;
+			var r = Math.random() * 360;
+			this.moveWithDegrees(r);
+		}
+		if (this._attackIndex < value / 6000){
+			this._attackIndex += 1;
 			this.attack();
 		}
-		var r = Math.random() * 360;
-		if (value % 6000 < 300)
-			this.moveWithDegrees(r);
+
 	}
 });
 

@@ -53,15 +53,19 @@ var cocos2dApp = cc.Application.extend({
         director.setAnimationInterval(1.0 / this.config['frameRate']);
 
         //load resources
-        Loading.preload(g_resources, function () {
+        Loading.preload(g_resources, function () {		
         // cc.LoaderScene.preload(g_resources, function () {
             director.replaceScene(new this.startScene());
-        }, this);
+        }, this);		
         // Loading.preload(g_resources, function () {
             // director.replaceScene(new this.startScene());
         // }, this);
-
+		
         return true;
     }
 });
+
 var myApp = new cocos2dApp(GameLayer.scene);
+
+
+

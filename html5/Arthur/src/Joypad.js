@@ -59,7 +59,12 @@ var Joypad = cc.Layer.extend({
 	},
 	onEnter:function(){
 		this._super();
-		cc.Director.getInstance().getTouchDispatcher().addTargetedDelegate(this, 0, true);
+		// cc.Director.getInstance().getTouchDispatcher().addTargetedDelegate(this, 0, true);
+		// 2.1.5 to 2.1.6
+		cc.registerTargetedDelegate(0, true, this);
+	},
+	onExit:function(){
+		cc.unregisterTouchDelegate(this);
 	},
 	onTouchBegan:function (touch, event){
 		// 点击点的范围判断

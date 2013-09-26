@@ -38,6 +38,9 @@ var GameLayer = cc.Layer.extend({
 			this.scheduleUpdate();
 
 
+			// 骨骼动画测试
+			this.test();
+			
 			bRef = true;
 		}
 		return bRef;
@@ -69,8 +72,24 @@ var GameLayer = cc.Layer.extend({
 		var b = this.mHero.getZLocation() > this.mRobot.getZLocation();
 		this.mHero.setZOrder(b ? 0: 1);
 		this.mRobot.setZOrder(b ? 1: 0) ;
+	},
+	test:function(){
+		return;
+		cc.ArmatureDataManager.getInstance().addArmatureFileInfo(
+			s_Robot_png,
+			s_Robot_plist,
+			s_Robot_json);
+
+		var armature = cc.Armature.create("Animation1");
+		armature.getAnimation().PlayByIndex(0);
+		armature.setAnchorPoint(cc.p(0.5, 0.5));
+		armature.setPosition(cc.p(300, 300));
+		this.addChild(armature);
+		cc.log("armature add ");
+		
 	}
 });
+var ctx;
 
 GameLayer.create = function(){
 	var sg = new GameLayer();

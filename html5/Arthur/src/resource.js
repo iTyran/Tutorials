@@ -81,6 +81,13 @@ var s_RobotAttack5 = "res/RobotAttack5.png";
 var s_futura48 = "res/fonts/futura-48.png";
 var s_fnt_futura48 = "res/fonts/futura-48.fnt";
 
+// var s_Robot_png = "res/armature/Robot.png";
+// var s_Robot_plist = "res/armature/Robot.plist";
+// var s_Robot_json = "res/armature/Robot.json";
+var s_Robot_png = "res/armature/NewProject0.png";
+var s_Robot_plist = "res/armature/NewProject0.plist";
+var s_Robot_json = "res/armature/NewProject.json";
+
 var g_resources = [
     //image
     {src:s_HelloWorld},
@@ -151,7 +158,12 @@ var g_resources = [
 	{src:s_RobotAttack3},
 	{src:s_RobotAttack4},
 	{src:s_RobotAttack5},
-	
+
+	// armature
+	{src:s_Robot_png},
+	{src:s_Robot_plist},
+	{src:s_Robot_json},
+
     //plist
 
     //fnt

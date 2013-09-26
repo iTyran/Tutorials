@@ -31,12 +31,15 @@ var ActionButton = cc.Node.extend({
 		return this._attackType;
 	},
 	onEnter:function(){
-		cc.Director.getInstance().getTouchDispatcher().addTargetedDelegate(this, 0, false);
 		this._super();
+		// cc.Director.getInstance().getTouchDispatcher().addTargetedDelegate(this, 0, false);
+		// 2.1.5 to 2.1.6		
+		cc.registerTargetedDelegate(0, true, this);
 	},
 	onExit:function(){
-		cc.Director.getInstance().getTouchDispatcher().removeDelegate(this);
 		this._super();
+		// cc.Director.getInstance().getTouchDispatcher().removeDelegate(this);
+		cc.unregisterTouchDelegate(this);
 	},
 	containsTouchLocation:function(touch){
 		return cc.rectContainsPoint(this.rect(), this.convertTouchToNodeSpace(touch));
