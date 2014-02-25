@@ -140,7 +140,7 @@ void js_register(JSContext* cx, JSObject* global){
     HASH_FIND_INT(_js_global_type_ht, &typeId, p);
     
     if (!p) {
-        p = (js_type_class_t* )malloc(sizeof(_js_global_type_ht));
+        p = (js_type_class_t* )malloc(sizeof(js_type_class_t));
         p->type = typeId;
         p->jsclass = jsb_class;
         p->proto = jsb_prototype;
